@@ -37,5 +37,10 @@ public class ComparatorTest {
         List<Diff> diffs = new Comparator(alex, james).compare();
         assertEquals("name", diffs.get(0).getName());
     }
+    
+    @Test(expected = ComparatorException.class)
+    public void compareUnlikeObjectTest() throws ComparatorException {
+        new Comparator(new String(), new Double(0)).compare();
+    }
 
 }
