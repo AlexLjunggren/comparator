@@ -18,11 +18,17 @@ public class Comparator {
     private Object object1;
     private Object object2;
     
-    public boolean isEqual() throws ComparatorException {
+    public boolean isEqual() {
         return compare().isEmpty();
     }
     
-    public List<Diff> compare() throws ComparatorException {
+    public List<Diff> compare() {
+        if (object1 == null && object2 == null) {
+            return new ArrayList<Diff>();
+        }
+        if (object1 == null || object2 == null) {
+            // not sure what to do yet
+        }
         if (object1.getClass() != object2.getClass()) {
             throw new ComparatorException(
                     String.format("Objects being compared must be the same class: %s compared to %s", 
@@ -33,7 +39,7 @@ public class Comparator {
         return findDiffs(items1, items2);
     }
     
-    private List<Item> findItems(Object object) throws ComparatorException {
+    private List<Item> findItems(Object object) {
         List<Item> items = new ArrayList<Item>();
         List<Field> fields = findObjectFields(object);
         for (Field field : fields) {

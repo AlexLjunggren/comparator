@@ -2,6 +2,7 @@ package com.ljunggren.comparator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -24,17 +25,30 @@ public class ComparatorTest {
     }
     
     @Test
-    public void isEqualTest() throws ComparatorException {
+    public void isEqualFalseTest() {
         User alex = new User("Alex", true);
         User james = new User("James", false);
         assertFalse(new Comparator(alex, james).isEqual());
     }
+    
+    @Test
+    public void isEqualBothNullTest() {
+        assertTrue(new Comparator(null, null).isEqual());
+    }
 
     @Test
-    public void compareTest() throws ComparatorException {
+    public void isEqualTrueTest() {
+        User alex = new User("Alex", true);
+        User alexander = new User("Alex", false);
+        assertTrue(new Comparator(alex, alexander).isEqual());
+    }
+
+    @Test
+    public void compareTest() {
         User alex = new User("Alex", true);
         User james = new User("James", false);
         List<Diff> diffs = new Comparator(alex, james).compare();
+        assertEquals(1, diffs.size());
         assertEquals("name", diffs.get(0).getName());
     }
     
