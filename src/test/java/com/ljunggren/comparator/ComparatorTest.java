@@ -2,6 +2,7 @@ package com.ljunggren.comparator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -50,6 +51,30 @@ public class ComparatorTest {
         List<Diff> diffs = new Comparator(alex, james).compare();
         assertEquals(1, diffs.size());
         assertEquals("name", diffs.get(0).getName());
+    }
+    
+    @Test
+    public void compareFirstIsNullTest() {
+        User alex = null;
+        User james = new User("James", false);
+        List<Diff> diffs = new Comparator(alex, james).compare();
+        Diff diff = diffs.get(0);
+        assertEquals(1, diffs.size());
+        assertEquals("name", diff.getName());
+        assertNull(diff.getValue1());
+        assertEquals("James", diff.getValue2());
+    }
+    
+    @Test
+    public void comareSecondIsNullTest() {
+        User alex = new User("Alex", true);
+        User james = null;
+        List<Diff> diffs = new Comparator(alex, james).compare();
+        Diff diff = diffs.get(0);
+        assertEquals(1, diffs.size());
+        assertEquals("name", diff.getName());
+        assertEquals("Alex", diff.getValue1());
+        assertNull(diff.getValue2());
     }
     
     @Test(expected = ComparatorException.class)
