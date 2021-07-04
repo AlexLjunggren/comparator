@@ -2,7 +2,6 @@ package com.ljunggren.comparator;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,18 +75,14 @@ public class Comparator {
     }
     
     private List<Field> findObjectFields(Object object) {
-        if (object != null) {
-            Class<?> clazz = object.getClass();
-            Field[] fields = FieldUtils.getAllFields(clazz);
-            return Arrays.asList(fields);
-        }
-        return new ArrayList<Field>();
+        Class<?> clazz = object.getClass();
+        return FieldUtils.getAllFieldsList(clazz);
     }
     
     private List<Diff> findDiffs(List<Item> items1, List<Item> items2) {
         List<Diff> diffs = new ArrayList<>();
         for (int i = 0; i < items1.size(); i++) {
-            if (isCompatable(items1.get(i))) {
+            if (isComparable(items1.get(i))) {
                 Diff diff = findDiff(items1.get(i), items2.get(i));
                 if (diff != null) {
                     diffs.add(diff);
@@ -97,16 +92,13 @@ public class Comparator {
         return diffs;
     }
     
-    private boolean isCompatable(Item item) {
+    private boolean isComparable(Item item) {
         return item.getField().getAnnotation(Comparable.class) != null;
     }
     
     private Diff findDiff(Item item1, Item item2) {
         Object value1 = item1.getValue();
         Object value2 = item2.getValue();
-        if (value1 == null && value2 == null) {
-            return null;
-        }
         if (value1 == null || value2 == null) {
             return buildDiff(item1, item2);
         }

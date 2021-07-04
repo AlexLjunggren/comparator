@@ -17,12 +17,4 @@ public class Item {
         this.value = value;
     }
     
-    public void setValue(Object value) {
-        try {
-            field.set(object, value);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            // TODO: Add something here
-        }
-    }
-    
 }
