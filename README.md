@@ -1,6 +1,6 @@
 ## Comparator ##
 
-Compare objects only on annotated member variables. Non-annotated members will be ignored.
+Compare objects by annotated member variables. Non-annotated members will be ignored.
 
 ```java
 public class User {
