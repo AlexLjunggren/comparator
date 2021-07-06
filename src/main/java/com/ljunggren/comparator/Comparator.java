@@ -128,6 +128,7 @@ public class Comparator {
                 .name(item1.getField().getName())
                 .value1(item1.getValue())
                 .value2(item2.getValue())
+                .clazz(item1.getField().getDeclaringClass())
                 .build();
     }
     

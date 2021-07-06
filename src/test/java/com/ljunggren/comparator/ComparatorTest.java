@@ -107,6 +107,15 @@ public class ComparatorTest {
         assertEquals(1, diffs.size());
     }
     
+    @Test
+    public void compareClassTest() {
+        User alex = new User("Alex", getAddress(), true);
+        User james = new User("James", new Address("New York City", "NY"), true);
+        List<Diff> diffs = new Comparator(alex, james).compare();
+        assertEquals(User.class, diffs.get(0).getClazz());
+        assertEquals(Address.class, diffs.get(1).getClazz());
+    }
+    
     @Test(expected = ComparatorException.class)
     public void compareUnlikeObjectTest() throws ComparatorException {
         new Comparator(new String(), new Double(0)).compare();

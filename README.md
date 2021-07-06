@@ -31,6 +31,7 @@ Diff
 - name - Field name
 - value1 - value of object1 field
 - value2 - value of object2 field
+- clazz - Class containing the field that has a diff. This is useful for embedded objects.
 
 ## Embedded Objects ##
 
