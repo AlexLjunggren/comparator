@@ -31,3 +31,7 @@ Diff
 - name - Field name
 - value1 - value of object1 field
 - value2 - value of object2 field
+
+#Exceptions#
+
+A runtime ComparatorException will be thrown if two object of different classes are being compared.
