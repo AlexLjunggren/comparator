@@ -9,6 +9,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.ljunggren.comparator.annotation.Comparable;
 import com.ljunggren.comparator.exception.ComparatorException;
+import com.ljunggren.reflectionUtils.ReflectionUtils;
 
 import lombok.AllArgsConstructor;
 
@@ -82,14 +83,28 @@ public class Comparator {
     private List<Diff> findDiffs(List<Item> items1, List<Item> items2) {
         List<Diff> diffs = new ArrayList<>();
         for (int i = 0; i < items1.size(); i++) {
-            if (isComparable(items1.get(i))) {
-                Diff diff = findDiff(items1.get(i), items2.get(i));
+            Item item1 = items1.get(i);
+            Item item2 = items2.get(i);
+            if (isComparable(item1)) {
+                if (isEmbeddedObject(item1.getValue()) || isEmbeddedObject(item2.getValue())) {
+                    diffs.addAll(new Comparator(item1.getValue(), item2.getValue()).compare());
+                    continue;
+                }
+                Diff diff = findDiff(item1, item2);
                 if (diff != null) {
                     diffs.add(diff);
                 }
             }
         }
         return diffs;
+    }
+    
+    private boolean isEmbeddedObject(Object object) {
+        if (object == null) {
+            return false;
+        }
+        Class<?> clazz = object.getClass();
+        return !ReflectionUtils.isPrimitive(clazz) && !ReflectionUtils.isString(clazz);
     }
     
     private boolean isComparable(Item item) {

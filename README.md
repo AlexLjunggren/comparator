@@ -32,6 +32,32 @@ Diff
 - value1 - value of object1 field
 - value2 - value of object2 field
 
+## Embedded Objects ##
+
+Objects other than boxed types and Strings can be marked as @Comparable.
+
+```java
+public class User {
+    @Comparable
+    private Address address;
+}
+
+public class Address {
+    @Comparable
+    private String city;
+    private String state;
+}
+```
+
 ## Exceptions ##
 
 A runtime ComparatorException will be thrown if two object of different classes are being compared.
+
+## TODO ##
+
+Add Collection, Array, and Map handling
+
+## Dependencies ##
+
+- reflection-utils
+
