@@ -10,7 +10,6 @@ import java.util.List;
 import org.junit.Test;
 
 import com.ljunggren.comparator.annotation.Comparable;
-import com.ljunggren.comparator.exception.ComparatorException;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,26 +42,26 @@ public class ComparatorTest {
     public void isEqualFalseTest() {
         User alex = new User("Alex", getAddress(), true);
         User james = new User("James", getAddress(), false);
-        assertFalse(new Comparator(alex, james).isEqual());
+        assertFalse(new Comparator<User>(alex, james).isEqual());
     }
     
     @Test
     public void isEqualBothNullTest() {
-        assertTrue(new Comparator(null, null).isEqual());
+        assertTrue(new Comparator<User>(null, null).isEqual());
     }
 
     @Test
     public void isEqualTrueTest() {
         User alex = new User("Alex", getAddress(), true);
         User alexander = new User("Alex", getAddress(), false);
-        assertTrue(new Comparator(alex, alexander).isEqual());
+        assertTrue(new Comparator<User>(alex, alexander).isEqual());
     }
 
     @Test
     public void compareTest() {
         User alex = new User("Alex", getAddress(), true);
         User james = new User("James", getAddress(), false);
-        List<Diff> diffs = new Comparator(alex, james).compare();
+        List<Diff> diffs = new Comparator<User>(alex, james).compare();
         assertEquals(1, diffs.size());
         assertEquals("name", diffs.get(0).getName());
     }
@@ -71,7 +70,7 @@ public class ComparatorTest {
     public void compareFirstIsNullTest() {
         User alex = null;
         User james = new User("James", getAddress(), false);
-        List<Diff> diffs = new Comparator(alex, james).compare();
+        List<Diff> diffs = new Comparator<User>(alex, james).compare();
         Diff diff1 = diffs.get(0);
         Diff diff2 = diffs.get(1);
         assertEquals(2, diffs.size());
@@ -87,7 +86,7 @@ public class ComparatorTest {
     public void compareSecondIsNullTest() {
         User alex = new User("Alex", getAddress(), true);
         User james = null;
-        List<Diff> diffs = new Comparator(alex, james).compare();
+        List<Diff> diffs = new Comparator<User>(alex, james).compare();
         Diff diff1 = diffs.get(0);
         Diff diff2 = diffs.get(1);
         assertEquals(2, diffs.size());
@@ -103,7 +102,7 @@ public class ComparatorTest {
     public void compareEmbeddedObjectTest() {
         User alex = new User("Alex", getAddress(), true);
         User alexander = new User("Alex", new Address("New York City", "NY"), true);
-        List<Diff> diffs = new Comparator(alex, alexander).compare();
+        List<Diff> diffs = new Comparator<User>(alex, alexander).compare();
         assertEquals(1, diffs.size());
     }
     
@@ -111,14 +110,9 @@ public class ComparatorTest {
     public void compareClassTest() {
         User alex = new User("Alex", getAddress(), true);
         User james = new User("James", new Address("New York City", "NY"), true);
-        List<Diff> diffs = new Comparator(alex, james).compare();
-        assertEquals(User.class, diffs.get(0).getClazz());
-        assertEquals(Address.class, diffs.get(1).getClazz());
+        List<Diff> diffs = new Comparator<User>(alex, james).compare();
+        assertEquals(User.class, diffs.get(0).getDeclaringClass());
+        assertEquals(Address.class, diffs.get(1).getDeclaringClass());
     }
     
-    @Test(expected = ComparatorException.class)
-    public void compareUnlikeObjectTest() throws ComparatorException {
-        new Comparator(new String(), new Double(0)).compare();
-    }
-
 }

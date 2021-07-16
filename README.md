@@ -12,7 +12,7 @@ public class User {
 Instantiate
 
 ```java
-Comparator comparator = new Comparator(object1, object2);
+Comparator comparator = new Comparator<T>(object1, object2);
 ```
 
 Is Equal
@@ -49,10 +49,6 @@ public class Address {
     private String state;
 }
 ```
-
-## Exceptions ##
-
-A runtime ComparatorException will be thrown if two object of different classes are being compared.
 
 ## TODO ##
 

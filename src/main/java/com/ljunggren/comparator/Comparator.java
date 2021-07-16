@@ -14,10 +14,10 @@ import com.ljunggren.reflectionUtils.ReflectionUtils;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class Comparator {
+public class Comparator<T> {
 
-    private Object object1;
-    private Object object2;
+    private T object1;
+    private T object2;
     
     public boolean isEqual() {
         return compare().isEmpty();
@@ -30,15 +30,10 @@ public class Comparator {
         if (object1 == null || object2 == null) {
             return findNullDiffs(object1, object2);
         }
-        if (object1.getClass() != object2.getClass()) {
-            throw new ComparatorException(
-                    String.format("Objects being compared must be the same class: %s compared to %s", 
-                            object1.getClass().toString(), object2.getClass().toString()));
-        }
         return findDiffs(object1, object2);
     }
     
-    private List<Diff> findNullDiffs(Object object1, Object object2) {
+    private List<Diff> findNullDiffs(T object1, T object2) {
         if (object1 == null) {
             List<Item> items2 = findItems(object2);
             List<Item> items1 = buildEmptyItems(items2);
@@ -55,13 +50,13 @@ public class Comparator {
         ).collect(Collectors.toList());
     }
     
-    private List<Diff> findDiffs(Object object1, Object object2) {
+    private List<Diff> findDiffs(T object1, T object2) {
         List<Item> items1 = findItems(object1);
         List<Item> items2 = findItems(object2);
         return findDiffs(items1, items2);
     }
     
-    private List<Item> findItems(Object object) {
+    private List<Item> findItems(T object) {
         List<Item> items = new ArrayList<Item>();
         List<Field> fields = findObjectFields(object);
         for (Field field : fields) {
@@ -75,7 +70,7 @@ public class Comparator {
         return items;
     }
     
-    private List<Field> findObjectFields(Object object) {
+    private List<Field> findObjectFields(T object) {
         Class<?> clazz = object.getClass();
         return FieldUtils.getAllFieldsList(clazz);
     }
@@ -87,7 +82,7 @@ public class Comparator {
             Item item2 = items2.get(i);
             if (isComparable(item1)) {
                 if (isEmbeddedObject(item1.getValue()) || isEmbeddedObject(item2.getValue())) {
-                    diffs.addAll(new Comparator(item1.getValue(), item2.getValue()).compare());
+                    diffs.addAll(new Comparator<Object>(item1.getValue(), item2.getValue()).compare());
                     continue;
                 }
                 Diff diff = findDiff(item1, item2);
@@ -128,7 +123,7 @@ public class Comparator {
                 .name(item1.getField().getName())
                 .value1(item1.getValue())
                 .value2(item2.getValue())
-                .clazz(item1.getField().getDeclaringClass())
+                .declaringClass(item1.getField().getDeclaringClass())
                 .build();
     }
     
