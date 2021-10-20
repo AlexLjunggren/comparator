@@ -1,23 +1,28 @@
 package com.ljunggren.comparator;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
-
 import com.ljunggren.comparator.annotation.Comparable;
-import com.ljunggren.comparator.exception.ComparatorException;
-import com.ljunggren.reflectionUtils.ReflectionUtils;
+import com.ljunggren.comparator.chain.ArrayDiff;
+import com.ljunggren.comparator.chain.CatchAllDiff;
+import com.ljunggren.comparator.chain.CollectionDiff;
+import com.ljunggren.comparator.chain.DiffChain;
+import com.ljunggren.comparator.chain.MapDiff;
+import com.ljunggren.comparator.chain.PrimitiveDiff;
+import com.ljunggren.comparator.utils.ComparatorUtils;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 public class Comparator<T> {
 
     private T object1;
     private T object2;
+    private ComparatorUtils<T> comparatorUtils = new ComparatorUtils<>();
+    
+    public Comparator(T object1, T object2) {
+        this.object1 = object1;
+        this.object2 = object2;
+    }
     
     public boolean isEqual() {
         return compare().isEmpty();
@@ -35,11 +40,11 @@ public class Comparator<T> {
     
     private List<Diff> findNullDiffs(T object1, T object2) {
         if (object1 == null) {
-            List<Item> items2 = findItems(object2);
+            List<Item> items2 = comparatorUtils.findItems(object2);
             List<Item> items1 = buildEmptyItems(items2);
             return findDiffs(items1, items2);
         }
-        List<Item> items1 = findItems(object1);
+        List<Item> items1 = comparatorUtils.findItems(object1);
         List<Item> items2 = buildEmptyItems(items1);
         return findDiffs(items1, items2);
     }
@@ -51,28 +56,9 @@ public class Comparator<T> {
     }
     
     private List<Diff> findDiffs(T object1, T object2) {
-        List<Item> items1 = findItems(object1);
-        List<Item> items2 = findItems(object2);
+        List<Item> items1 = comparatorUtils.findItems(object1);
+        List<Item> items2 = comparatorUtils.findItems(object2);
         return findDiffs(items1, items2);
-    }
-    
-    private List<Item> findItems(T object) {
-        List<Item> items = new ArrayList<Item>();
-        List<Field> fields = findObjectFields(object);
-        for (Field field : fields) {
-            try {
-                Object value = FieldUtils.readField(field, object, true);
-                items.add(new Item(object, field, value));
-            } catch (IllegalAccessException e) {
-                throw new ComparatorException(e.getMessage());
-            }
-        }
-        return items;
-    }
-    
-    private List<Field> findObjectFields(T object) {
-        Class<?> clazz = object.getClass();
-        return FieldUtils.getAllFieldsList(clazz);
     }
     
     private List<Diff> findDiffs(List<Item> items1, List<Item> items2) {
@@ -81,50 +67,23 @@ public class Comparator<T> {
             Item item1 = items1.get(i);
             Item item2 = items2.get(i);
             if (isComparable(item1)) {
-                if (isEmbeddedObject(item1.getValue()) || isEmbeddedObject(item2.getValue())) {
-                    diffs.addAll(new Comparator<Object>(item1.getValue(), item2.getValue()).compare());
-                    continue;
-                }
-                Diff diff = findDiff(item1, item2);
-                if (diff != null) {
-                    diffs.add(diff);
-                }
+                diffs.addAll(getChain().findDiffs(item1, item2));
             }
         }
         return diffs;
-    }
-    
-    private boolean isEmbeddedObject(Object object) {
-        if (object == null) {
-            return false;
-        }
-        Class<?> clazz = object.getClass();
-        return !ReflectionUtils.isPrimitive(clazz) && !ReflectionUtils.isString(clazz);
     }
     
     private boolean isComparable(Item item) {
         return item.getField().getAnnotation(Comparable.class) != null;
     }
     
-    private Diff findDiff(Item item1, Item item2) {
-        Object value1 = item1.getValue();
-        Object value2 = item2.getValue();
-        if (value1 == null || value2 == null) {
-            return buildDiff(item1, item2);
-        }
-        if (!value1.equals(value2)) {
-            return buildDiff(item1, item2);
-        }
-        return null;
-    }
-    
-    private Diff buildDiff(Item item1, Item item2) {
-        return Diff.builder()
-                .name(item1.getField().getName())
-                .value1(item1.getValue())
-                .value2(item2.getValue())
-                .declaringClass(item1.getField().getDeclaringClass())
-                .build();
+    private DiffChain getChain() {
+        return new PrimitiveDiff().nextChain(
+                new CollectionDiff().nextChain(
+                new ArrayDiff().nextChain(
+                new MapDiff().nextChain(
+                new CatchAllDiff()
+        ))));
     }
     
 }
