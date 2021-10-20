@@ -52,7 +52,7 @@ public class Address {
 
 ## TODO ##
 
-Add Collection, Array, and Map handling
+Add iterable handling
 
 ## Dependencies ##
 
