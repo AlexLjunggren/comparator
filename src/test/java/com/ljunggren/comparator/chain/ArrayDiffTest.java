@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.ljunggren.comparator.Comparator;
 import com.ljunggren.comparator.Diff;
-import com.ljunggren.comparator.annotation.Comparable;
+import com.ljunggren.comparator.Item;
+import com.ljunggren.comparator.utils.ComparatorUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,101 +18,105 @@ public class ArrayDiffTest {
     @Data
     @AllArgsConstructor
     private class User {
-        @Comparable
-        String[] aliases;
+         String[] aliases;
     }
     
-    @Test
-    public void findDiffTest() {
-        String[] names1 = new String[] {
-                "James", "Alex"
-        };
-        String[] names2 = new String[] {
-                "Chris", "Alex"
-        };
-        User user1 = new User(names1);
-        User user2 = new User(names2);
-        List<Diff> diffs = new Comparator<>(user1, user2).compare();
-        assertEquals(1, diffs.size());
-        assertEquals(names1[0], diffs.get(0).getValue1());
-        assertEquals(names2[0], diffs.get(0).getValue2());
+    private ComparatorUtils<User> comparatorUtils = new ComparatorUtils<>();
+    
+    private DiffChain getChain() {
+        return new ArrayDiff().nextChain(new CatchAllDiff());
+    }
+    
+    private List<Diff> findDiffs(String[] aliases1, String[] aliases2) {
+        User user1 = new User(aliases1);
+        User user2 = new User(aliases2);
+        List<Item> items1 = comparatorUtils.findItems(user1);
+        List<Item> items2 = comparatorUtils.findItems(user2);
+        return getChain().findDiffs(items1.get(0), items2.get(0));
     }
 
     @Test
-    public void findDiffMoreTest() {
-        String[] names1 = new String[] {
-                "Chris", "Alex", "James"
+    public void findDiffTest() {
+        String[] aliases1 = new String[] {
+                "James", "Alex"
         };
-        String[] names2 = new String[] {
+        String[] aliases2 = new String[] {
                 "Chris", "Alex"
         };
-        User user1 = new User(names1);
-        User user2 = new User(names2);
-        List<Diff> diffs = new Comparator<>(user1, user2).compare();
+        List<Diff> diffs = findDiffs(aliases1, aliases2);
+        assertEquals(1, diffs.size());
+        assertEquals(aliases1[0], diffs.get(0).getValue1());
+        assertEquals(aliases2[0], diffs.get(0).getValue2());
+    }
+    
+    @Test
+    public void findDiffMoreTest() {
+        String[] aliases1 = new String[] {
+                "Chris", "Alex", "James"
+        };
+        String[] aliases2 = new String[] {
+                "Chris", "Alex"
+        };
+        List<Diff> diffs = findDiffs(aliases1, aliases2);
         assertEquals(1, diffs.size());
     }
 
     @Test
     public void findDiffMoreFromOtherObjectTest() {
-        String[] names1 = new String[] {
+        String[] aliases1 = new String[] {
                 "Chris", "Alex"
         };
-        String[] names2 = new String[] {
+        String[] aliases2 = new String[] {
                 "Chris", "Alex", "James"
         };
-        User user1 = new User(names1);
-        User user2 = new User(names2);
-        List<Diff> diffs = new Comparator<>(user1, user2).compare();
+        List<Diff> diffs = findDiffs(aliases1, aliases2);
         assertEquals(1, diffs.size());
     }
 
     @Test
-    public void findDiffEmptyArrayTest() {
-        String[] names1 = new String[] {
+    public void findDiffEmptyTest() {
+        String[] aliases1 = new String[] {
                 "James", "Alex"
         };
-        String[] names2 = new String[] {};
-        User user1 = new User(names1);
-        User user2 = new User(names2);
-        List<Diff> diffs = new Comparator<>(user1, user2).compare();
+        String[] aliases2 = new String[] {};
+        List<Diff> diffs = findDiffs(aliases1, aliases2);
         assertEquals(2, diffs.size());
     }
 
     @Test
-    public void findDiffNullArrayTest() {
-        String[] names1 = new String[] {
+    public void findDiffNullTest() {
+        String[] aliases1 = new String[] {
                 "James", "Alex"
         };
-        User user1 = new User(names1);
-        User user2 = new User(null);
-        List<Diff> diffs = new Comparator<>(user1, user2).compare();
+        List<Diff> diffs = findDiffs(aliases1, null);
         assertEquals(2, diffs.size());
     }
 
     @Test
-    public void findDiffNullArrayFromOtherObjecyTest() {
-        String[] names2 = new String[] {
+    public void findDiffNullFromOtherObjectTest() {
+        String[] aliases2 = new String[] {
                 "James", "Alex"
         };
-        User user1 = new User(null);
-        User user2 = new User(names2);
-        List<Diff> diffs = new Comparator<>(user1, user2).compare();
+        List<Diff> diffs = findDiffs(null, aliases2);
         assertEquals(2, diffs.size());
+    }
+
+    @Test
+    public void findDiffBothNullTest() {
+        List<Diff> diffs = findDiffs(null, null);
+        assertEquals(0, diffs.size());
     }
 
     @Test
     public void findDiffNoDiffTest() {
-        String[] names1 = new String[] {
+        String[] aliases1 = new String[] {
                 "James", "Alex"
         };
-        String[] names2 = new String[] {
+        String[] aliases2 = new String[] {
                 "James", "Alex"
         };
-        User user1 = new User(names1);
-        User user2 = new User(names2);
-        List<Diff> diffs = new Comparator<>(user1, user2).compare();
+        List<Diff> diffs = findDiffs(aliases1, aliases2);
         assertEquals(0, diffs.size());
     }
-
 
 }

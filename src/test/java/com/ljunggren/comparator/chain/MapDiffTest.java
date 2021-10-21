@@ -8,9 +8,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.ljunggren.comparator.Comparator;
 import com.ljunggren.comparator.Diff;
-import com.ljunggren.comparator.annotation.Comparable;
+import com.ljunggren.comparator.Item;
+import com.ljunggren.comparator.utils.ComparatorUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,8 +20,21 @@ public class MapDiffTest {
     @Data
     @AllArgsConstructor
     private class Book {
-        @Comparable
         Map<Integer, String> chapters;
+    }
+    
+    private ComparatorUtils<Book> comparatorUtils = new ComparatorUtils<>();
+    
+    private DiffChain getChain() {
+        return new MapDiff().nextChain(new CatchAllDiff());
+    }
+    
+    private List<Diff> findDiffs(Map<Integer, String> chapters1, Map<Integer, String> chapters2) {
+        Book mobyDick1 = new Book(chapters1);
+        Book mobyDick2 = new Book(chapters2);
+        List<Item> items1 = comparatorUtils.findItems(mobyDick1);
+        List<Item> items2 = comparatorUtils.findItems(mobyDick2);
+        return getChain().findDiffs(items1.get(0), items2.get(0));
     }
     
     private Map<Integer, String> getChapters() {
@@ -37,58 +50,54 @@ public class MapDiffTest {
     
     @Test
     public void findDiffTest() {
-        Book mobyDick = new Book(getChapters());
-        Book abridgedMobyDick = new Book(getChapters());
-        abridgedMobyDick.getChapters().remove(6);
-        List<Diff> diffs = new Comparator<>(mobyDick, abridgedMobyDick).compare();
+        Map<Integer, String> chapters1 = getChapters();
+        Map<Integer, String> chapters2 = getChapters();
+        chapters2.remove(6);
+        List<Diff> diffs = findDiffs(chapters1, chapters2);
         assertEquals(1, diffs.size());
     }
     
     @Test
     public void findDiffEmptyMapTest() {
-        Book mobyDick = new Book(getChapters());
-        Book abridgedMobyDick = new Book(new HashMap<>());
-        List<Diff> diffs = new Comparator<>(mobyDick, abridgedMobyDick).compare();
+        Map<Integer, String> chapters1 = getChapters();
+        Map<Integer, String> chapters2 = new HashMap<>();
+        List<Diff> diffs = findDiffs(chapters1, chapters2);
         assertEquals(6, diffs.size());
     }
     
     @Test
     public void findDiffEmptyMapFromTheOtherObjectTest() {
-        Book mobyDick = new Book(new HashMap<>());
-        Book abridgedMobyDick = new Book(getChapters());
-        List<Diff> diffs = new Comparator<>(mobyDick, abridgedMobyDick).compare();
+        Map<Integer, String> chapters1 = new HashMap<>();
+        Map<Integer, String> chapters2 = getChapters();
+        List<Diff> diffs = findDiffs(chapters1, chapters2);
         assertEquals(6, diffs.size());
     }
     
     @Test
     public void findDiffNullMapTest() {
-        Book mobyDick = new Book(getChapters());
-        Book abridgedMobyDick = new Book(null);
-        List<Diff> diffs = new Comparator<>(mobyDick, abridgedMobyDick).compare();
+        Map<Integer, String> chapters1 = getChapters();
+        List<Diff> diffs = findDiffs(chapters1, null);
         assertEquals(6, diffs.size());
     }
 
     @Test
     public void findDiffNullMapFromOtherObjectTest() {
-        Book mobyDick = new Book(null);
-        Book abridgedMobyDick = new Book(getChapters());
-        List<Diff> diffs = new Comparator<>(mobyDick, abridgedMobyDick).compare();
+        Map<Integer, String> chapters2 = getChapters();
+        List<Diff> diffs = findDiffs(null, chapters2);
         assertEquals(6, diffs.size());
     }
 
     @Test
     public void findDiffBothNullTest() {
-        Book mobyDick = new Book(null);
-        Book abridgedMobyDick = new Book(null);
-        List<Diff> diffs = new Comparator<>(mobyDick, abridgedMobyDick).compare();
+        List<Diff> diffs = findDiffs(null, null);
         assertEquals(0, diffs.size());
     }
 
     @Test
     public void findDiffNoDiffTest() {
-        Book mobyDick = new Book(getChapters());
-        Book abridgedMobyDick = new Book(getChapters());
-        List<Diff> diffs = new Comparator<>(mobyDick, abridgedMobyDick).compare();
+        Map<Integer, String> chapters1 = getChapters();
+        Map<Integer, String> chapters2 = getChapters();
+        List<Diff> diffs = findDiffs(chapters1, chapters2);
         assertEquals(0, diffs.size());
     }
 

@@ -10,13 +10,9 @@ import com.ljunggren.comparator.Diff;
 
 public class CatchAllDiffTest {
     
-    private DiffChain getChain() {
-        return new CatchAllDiff();
-    }
-
     @Test
     public void findDiffBothNullTest() {
-        List<Diff> diffs = getChain().findDiffs(null, null);
+        List<Diff> diffs = new CatchAllDiff().findDiffs(null, null);
         assertEquals(0, diffs.size());
     }
 
