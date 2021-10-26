@@ -34,19 +34,19 @@ public class ArrayDiff extends DiffChain {
     
     private List<Diff> findArrayDiffs(Object[] array1, Object[] array2) {
         List<Diff> diffs = new ArrayList<>();
-        int array1Size = array1 == null ? 0 : array1.length;
-        int array2Size = array2 == null ? 0 : array2.length;
-        int size = array1Size > array2Size ? array1Size : array2Size;
+        long array1Size = array1 == null ? 0 : array1.length;
+        long array2Size = array2 == null ? 0 : array2.length;
+        long size = array1Size > array2Size ? array1Size : array2Size;
         for (int i = 0; i < size; i++) {
             if (i >= array1Size) {
-                diffs.addAll(new Comparator<Object>(null, new Adaptor<>(array2[i])).compare());
+                diffs.addAll(new Comparator<>(null, new Adaptor<>(array2[i])).compare());
                 continue;
             }
             if (i >= array2Size) {
-                diffs.addAll(new Comparator<Object>(new Adaptor<>(array1[i]), null).compare());
+                diffs.addAll(new Comparator<>(new Adaptor<>(array1[i]), null).compare());
                 continue;
             }
-            diffs.addAll(new Comparator<Object>(new Adaptor<>(array1[i]), new Adaptor<>(array2[i])).compare());
+            diffs.addAll(new Comparator<>(new Adaptor<>(array1[i]), new Adaptor<>(array2[i])).compare());
         }
         return diffs;
     }

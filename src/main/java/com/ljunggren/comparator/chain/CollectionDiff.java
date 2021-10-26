@@ -35,9 +35,9 @@ public class CollectionDiff extends DiffChain {
     
     private List<Diff> findCollectionDiffs(Collection<?> collection1, Collection<?> collection2) {
         List<Diff> diffs = new ArrayList<>();
-        int collection1Size = collection1 == null ? 0 : collection1.size();
-        int collection2Size = collection2 == null ? 0 : collection2.size();
-        int size = collection1Size > collection2Size ? collection1Size : collection2Size;
+        long collection1Size = collection1 == null ? 0 : collection1.size();
+        long collection2Size = collection2 == null ? 0 : collection2.size();
+        long size = collection1Size > collection2Size ? collection1Size : collection2Size;
         for (int i = 0; i < size; i++) {
             if (i >= collection1Size) {
                 diffs.addAll(new Comparator<>(null, new Adaptor<>(collection2.toArray()[i])).compare());

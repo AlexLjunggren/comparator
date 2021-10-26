@@ -50,10 +50,6 @@ public class Address {
 }
 ```
 
-## TODO ##
-
-Add iterable handling
-
 ## Dependencies ##
 
 - reflection-utils
